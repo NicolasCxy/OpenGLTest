@@ -1,0 +1,3 @@
+include ':glcamera'
+include ':app'
+rootProject.name = "OpenGlDemo"
