@@ -1,11 +1,20 @@
-package com.cxy.glcamera;
+package com.cxy.glcamera.render;
 
-import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
+import android.os.Environment;
 
 import androidx.camera.core.Preview;
 import androidx.lifecycle.LifecycleOwner;
+
+import com.cxy.glcamera.CameraGlView;
+import com.cxy.glcamera.filter.RecordFilter;
+import com.cxy.glcamera.utils.CameraHelper;
+import com.cxy.glcamera.filter.CameraFilter;
+import com.cxy.glcamera.utils.MediaRecorder;
+
+import java.io.File;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -16,24 +25,39 @@ public class CameraGLRender implements GLSurfaceView.Renderer, Preview.OnPreview
     private CameraHelper cameraHelper;
     private SurfaceTexture mSurfaceTexture;
     private float[] mtx = new float[16];
-    private ScreenFilter screenFilter;
+    private int[] texture;
+    private CameraFilter mCameraFilter;
+    private RecordFilter mRecordFilter;
 
     public CameraGLRender(CameraGlView cameraGlView) {
         this.mHostGlView = cameraGlView;
+        //获取相机相关
+        LifecycleOwner lifecycleOwner = (LifecycleOwner) mHostGlView.getContext();
+        cameraHelper = new CameraHelper(lifecycleOwner,this);
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        //获取相机相关
-        LifecycleOwner lifecycleOwner = (LifecycleOwner) mHostGlView.getContext();
-        cameraHelper = new CameraHelper(lifecycleOwner,this);
+
+        texture = new int[1];
+        mSurfaceTexture.attachToGLContext(texture[0]);
         mSurfaceTexture.setOnFrameAvailableListener(this);
-        screenFilter = new ScreenFilter(mHostGlView.getContext());
+
+        mCameraFilter = new CameraFilter(mHostGlView.getContext());
+        mRecordFilter = new RecordFilter(mHostGlView.getContext());
+
+        String path = new File(Environment.getExternalStorageDirectory(),
+                "inputTest.mp4").getAbsolutePath();
+        MediaRecorder mediaRecorder  = new MediaRecorder(mHostGlView.getContext(),
+                path, EGL14.eglGetCurrentContext(),1280,720);
+
+
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-
+        mCameraFilter.setSize(width,height);
+        mRecordFilter.setSize(width,height);
     }
 
     @Override
@@ -41,6 +65,12 @@ public class CameraGLRender implements GLSurfaceView.Renderer, Preview.OnPreview
         mSurfaceTexture.updateTexImage();
         //获取变化矩阵，为了后续将openGL 世界坐标与 纹理坐标做转换 求出真实的像素点
         mSurfaceTexture.getTransformMatrix(mtx);
+        mCameraFilter.setTransformMatrix(mtx);
+
+        int fobId = mCameraFilter.onDraw(texture[0]);
+        //让其渲染
+        mRecordFilter.onDraw(fobId);
+
 
     }
 

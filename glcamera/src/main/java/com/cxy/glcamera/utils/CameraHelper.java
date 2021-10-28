@@ -1,4 +1,4 @@
-package com.cxy.glcamera;
+package com.cxy.glcamera.utils;
 
 import android.os.HandlerThread;
 import android.util.Size;

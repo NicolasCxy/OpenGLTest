@@ -4,6 +4,8 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 
+import com.cxy.glcamera.render.CameraGLRender;
+
 public class CameraGlView extends GLSurfaceView {
     public CameraGlView(Context context) {
         this(context,null);

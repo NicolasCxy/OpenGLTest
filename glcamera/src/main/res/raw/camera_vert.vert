@@ -1,4 +1,3 @@
-#version 120
 
 attribute vec4 vPosition;
 //纹理坐标
