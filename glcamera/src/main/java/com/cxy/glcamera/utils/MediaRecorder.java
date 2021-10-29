@@ -11,6 +11,7 @@ import android.os.HandlerThread;
 import android.view.Surface;
 
 import java.io.IOException;
+import java.sql.Struct;
 
 /**
  * 从FBO取数据并且渲染
@@ -28,6 +29,7 @@ public class MediaRecorder {
     private MediaCodec mediaCodec;
     private MediaMuxer mMuxer;
     private EglEnv engEnv;
+    private boolean isStart;
 
     public MediaRecorder(Context context, String path, EGLContext glContext, int width, int height) {
         mContext = context.getApplicationContext();
@@ -73,13 +75,21 @@ public class MediaRecorder {
                 public void run() {
                     engEnv = new EglEnv(mContext,mGlContext, mSurface,mWidth, mHeight);
                     //TODO://上一次在这个位置！
+                    isStart = true;
                 }
             });
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    /**
+     * 从FBO取数据到编码器编码
+     * @param textureId
+     * @param timestamp
+     */
+    public void getFrame(final int textureId,final long timestamp){
 
     }
 

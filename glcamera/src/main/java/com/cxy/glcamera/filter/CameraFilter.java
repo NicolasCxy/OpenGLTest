@@ -8,7 +8,7 @@ import com.cxy.glcamera.R;
 /**
  * 相机采集Filter 指定视图如何渲染
  */
-public class CameraFilter extends AbstractFilter {
+public class CameraFilter extends AbstractFBOFilter {
     private float[] mtx;
     private int vMatrix;
 
